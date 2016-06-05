@@ -101,6 +101,11 @@ void linearlist_print(Linearlist *list)
 	printf("\n");
 }
 
+int linearlist_length(Linearlist *list)
+{
+	return list->size;
+}
+
 LinearlistElement *linearlist_get_first(Linearlist *list)
 {
 	return list->first;
@@ -134,10 +139,6 @@ bool linearlist_is_empty(Linearlist *list)
 	return true;
 }
 
-int linearlist_get_size(Linearlist *list)
-{
-	return list->size;
-}
 /*int sz(Linearlist *list)
 {
 	LinearlistElement *tmp = list->first;

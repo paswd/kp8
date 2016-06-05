@@ -31,5 +31,5 @@
 # Debug files
 *.dSYM/
 
-/lab26
+/kp8
 !/lib/*
