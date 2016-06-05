@@ -11,5 +11,5 @@ main.o: main.c
 linearlist.o: linearlist.h linearlist.c
 	gcc -c $(FLAGS) linearlist.h linearlist.c
 
-clean:
+clear:
 	-rm -f *.o *.gch kp8
