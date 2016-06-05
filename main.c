@@ -29,7 +29,7 @@ int main(void)
 	Linearlist *linearlist = linearlist_create();
 	printf("-------------------------------------------\n");
 	printf("Commands:\n");
-	printf("a <position> <value> - push to linearlist\n(set position `-1` if you want to pust to the end of linearlist)\n");
+	printf("a <position> <value> - push to linearlist\n(set position `-1` if you want to push to the end of linearlist)\n");
 	printf("d <position> - pop from linearlist and print popped item\n");
 	printf("r - reverse halfs of linearlist\n");
 	printf("p - print linearlist\n");
