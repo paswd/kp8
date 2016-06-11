@@ -20,7 +20,7 @@ Iterator *iterator_create()
 
 void iterator_destroy(Iterator **it)
 {
-	free((*it)->value);
+	//free((*it)->value);
 	free(*it);
 	*it = NULL;
 }
@@ -54,4 +54,5 @@ void iterator_set_last(Iterator *it, Linearlist *list)
 void iterator_set_position(Iterator *it, Linearlist *list, int pos, bool *err)
 {
 	it->value = linearlist_get_prev_element_by_position(list, pos, err);
+	//it->value = it->value;
 }

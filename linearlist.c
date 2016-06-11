@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "linearlist.h"
+#include "names.h"
 
 #define LINEARLIST_ERROR	-90000000000000
 
