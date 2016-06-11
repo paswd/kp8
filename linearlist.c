@@ -13,6 +13,7 @@ struct _linearlist_element {
 
 struct _linearlist {
 	LinearlistElement *first;
+	LinearlistElement *last;
 	int size;
 };
 
@@ -21,6 +22,7 @@ Linearlist *linearlist_create()
 	Linearlist *nw = (Linearlist *) calloc(1, sizeof(Linearlist));
 	nw->size = 0;
 	nw->first = NULL;
+	nw->last = NULL;
 	return nw;
 }
 
@@ -36,60 +38,53 @@ void linearlist_destroy(Linearlist **list)
 	*list = NULL;
 }
 
-void linearlist_push(Linearlist *list, int pos, Item value)
+void linearlist_push(Linearlist *list, LinearlistElement *element, Item value)
 {
-	if (pos > list->size || pos < 0)
-		pos = list->size;
-	list->size++;
 	LinearlistElement *nw = (LinearlistElement *) calloc(1, sizeof(LinearlistElement));
-	nw->next = NULL;
 	nw->value = value;
-	int i = 0;
-	if (pos == 0) {
+	list->size++;
+	if (element == NULL) {
 		nw->next = list->first;
 		list->first = nw;
+		if (list->first->next == NULL)
+			list->last = list->first;
 		return;
 	}
-	LinearlistElement *tmp = list->first;
-	while (i < pos - 1 && tmp->next != NULL) {
-		i++;
-		tmp = tmp->next;
-	}
-	nw->next = tmp->next;
-	tmp->next = nw;
+	nw->next = element->next;
+	element->next = nw;
+	if (element == list->last)
+		list->last = nw;
 }
 
-Item linearlist_pop(Linearlist *list, int pos)
+Item linearlist_pop(Linearlist *list, LinearlistElement *prev)
 {
-	if (list->size == 0) {
-		printf("Linearlist is empty\n");
+	Item value;
+	LinearlistElement *el_del;
+	if (prev == NULL) {
+		if (list->first == NULL) {
+			printf("Linearlist is empty\n");
+			return LINEARLIST_ERROR;
+		}
+		el_del = list->first;
+		list->first = list->first->next;
+		value = el_del->value;
+		free(el_del);
+		list->size--;
+		return value;
+	}
+	if (prev->next == NULL) {
+		printf("Element is out of range\n");
 		return LINEARLIST_ERROR;
 	}
 	list->size--;
-	Item value;
-	LinearlistElement *tmp = list->first;
-	if (pos == 0) {
-		value = tmp->value;
-		list->first = tmp->next;
-		free(tmp);
-		return value;
-	}
-	int i = 0;
-	while (i < pos - 1) {
-		if (tmp->next == NULL) {
-			printf("Element is out of range\n");
-			return LINEARLIST_ERROR;
-		}
-
-		i++;
-		tmp = tmp->next;
-	}
-	LinearlistElement *del = tmp->next;
-	tmp->next = del->next;
-	value = del->value;
-	free(del);
+	el_del = prev->next;
+	prev->next = prev->next->next;
+	value = el_del->value;
+	if (list->last == el_del)
+		list->last = prev;
+	free(el_del);
 	return value;
-}
+}	
 
 void linearlist_print(Linearlist *list)
 {
@@ -110,14 +105,24 @@ LinearlistElement *linearlist_get_first(Linearlist *list)
 {
 	return list->first;
 }
-LinearlistElement *linearlist_get_element_by_position(Linearlist *list, int pos)
+LinearlistElement *linearlist_get_last(Linearlist *list)
 {
-	if (pos >= list->size || pos < 0) {
+	return list->last;
+}
+LinearlistElement *linearlist_get_prev_element_by_position(Linearlist *list, int pos, bool *err)
+{
+	*err = false;
+	if (pos == -1 || pos == list->size)
+		return list->last;
+	if (pos > list->size || pos < -1) {
 		printf("Element is out of range\n");
+		*err = true;
 		return NULL;
 	}
+	if (pos == 0)
+		return NULL;
 	LinearlistElement *tmp = list->first;
-	for (int i = 0; i < pos && tmp != NULL; i++) {
+	for (int i = 0; i < pos - 1 && tmp != NULL; i++) {
 		tmp = tmp->next;
 	}
 	return tmp;
@@ -127,8 +132,10 @@ Item linearlist_get_value(LinearlistElement *element)
 {
 	return element->value;
 }
-LinearlistElement *linearlist_get_next(LinearlistElement *element)
+LinearlistElement *linearlist_get_next(Linearlist *list, LinearlistElement *element)
 {
+	if (element == NULL)
+		return list->first;
 	return element->next;
 }
 
@@ -159,5 +166,6 @@ void linearlist_clear(Linearlist *list)
 		del = tmp;
 	}
 	list->first = NULL;
+	list->last = NULL;
 	list->size = 0;
 }

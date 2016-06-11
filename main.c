@@ -3,24 +3,21 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "linearlist.h"
+#include "iterator.h"
+#include "names.h"
 
 #define LINEARLIST_ERROR	-90000000000000
 
 void linearlist_halfs_reverse(Linearlist *list)
 {
-	/*Linearlist *tmp = linearlist_create();
+	Iterator *it_first = iterator_create();
+	Iterator *it_last = iterator_create();
+	iterator_set_last(it_last, list);
 	int size = linearlist_length(list);
 	for (int i = 0; i < size / 2; i++) {
-		linearlist_push(tmp, -1, linearlist_pop(list, 0));
-	}
-	while (!linearlist_is_empty(tmp)) {
-		linearlist_push(list, -1, linearlist_pop(tmp, 0));
-	}
-	linearlist_destroy(&tmp);*/
-
-	int size = linearlist_length(list);
-	for (int i = 0; i < size / 2; i++) {
-		linearlist_push(list, -1, linearlist_pop(list, 0));
+		linearlist_push(list, iterator_fetch(it_last), linearlist_pop(list, iterator_fetch(it_first)));
+		iterator_set_first(it_last);
+		iterator_set_last(it_last, list);
 	}
 }
 
@@ -29,7 +26,7 @@ int main(void)
 	Linearlist *linearlist = linearlist_create();
 	printf("-------------------------------------------\n");
 	printf("Commands:\n");
-	printf("a <position> <value> - push to linearlist\n(set position `-1` if you want to push to the end of linearlist)\n");
+	printf("a <position> <value> - push to linearlist\n(set position `-1` if you want to pust to the end of linearlist)\n");
 	printf("d <position> - pop from linearlist and print popped item\n");
 	printf("r - reverse halfs of linearlist\n");
 	printf("p - print linearlist\n");
@@ -44,6 +41,9 @@ int main(void)
 		bool is_finished = false;
 		scanf("%c", &cmd);
 		long long tmp;
+		LinearlistElement *this = NULL;
+		bool err = false;
+		Iterator *it = iterator_create();
 		switch (cmd) {
 			case 'q':
 				is_finished = true;
@@ -51,12 +51,21 @@ int main(void)
 			case 'a':
 				scanf("%d", &pos);
 				scanf("%lld", &value);
-				linearlist_push(linearlist, pos, value);
+				this = linearlist_get_prev_element_by_position(linearlist, pos, &err);
+				//iterator_set_position(it, linearlist, pos, &err);
+				if (err)
+					break;
+				linearlist_push(linearlist, this, value);
+				//linearlist_push(linearlist, iterator_fetch(it), value);
 				break;
 			case 'd':
 				scanf("%d", &pos);
-				tmp = (long long) linearlist_pop(linearlist, pos);
-				if (tmp != LINEARLIST_ERROR) printf("%lld\n", tmp);
+				this = linearlist_get_prev_element_by_position(linearlist, pos, &err);
+				if (err)
+					break;
+				tmp = (long long) linearlist_pop(linearlist, this);
+				if (tmp != LINEARLIST_ERROR)
+					printf("%lld\n", tmp);
 				break;
 			case 'r':
 				linearlist_halfs_reverse(linearlist);
@@ -78,7 +87,11 @@ int main(void)
 				printf("Invalid command `%c`\n", cmd);
 				break;
 		}
+		iterator_destroy(&it);
 		if (is_finished) break;
+
+		printf("First: %lld\n", (long long) linearlist_get_value(linearlist_get_first(linearlist)));
+		printf("Last: %lld\n", (long long) linearlist_get_value(linearlist_get_last(linearlist)));
 	}
 	printf("Goodbye!\n");
 
