@@ -60,8 +60,8 @@ int main(void)
 					printf("true\n");
 				else
 					printf("false\n");*/
-				/*if (err)
-					break;*/
+				if (err)
+					break;
 				//linearlist_push(linearlist, this, value);
 				linearlist_push(linearlist, iterator_fetch(it), value);
 				break;
